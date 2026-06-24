@@ -26,7 +26,8 @@ const FIELDS: Field[] = [
   { id: "offers_given_lt", question: "How many offers were given on low ticket?", type: "number", placeholder: "0" },
   { id: "lt_deals_closed", question: "How many low ticket deals did you close?", type: "number", placeholder: "0" },
   { id: "ht_deals_closed", question: "How many high ticket deals did you close?", type: "number", placeholder: "0" },
-  { id: "talk_time", question: "What was your total talk time (in seconds)?", type: "number", placeholder: "0" },
+  { id: "talk_time_hours", question: "What was your total talk time — hours?", type: "number", placeholder: "0" },
+  { id: "talk_time_minutes", question: "And the minutes?", type: "number", placeholder: "0" },
   { id: "cash_ht", question: "How much cash was collected (HT)?", type: "currency", placeholder: "0", prefix: "$" },
   { id: "revenue_ht", question: "How much revenue was generated (HT)?", type: "currency", placeholder: "0", prefix: "$" },
   { id: "cash_lt", question: "How much cash was collected (LT)?", type: "currency", placeholder: "0", prefix: "$" },
@@ -112,7 +113,11 @@ export default function SetterEODForm() {
       await fetch("/api/setter/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...finalAnswers, submittedAt: new Date().toISOString() }),
+        body: JSON.stringify({
+          ...finalAnswers,
+          talk_time: (parseInt(finalAnswers.talk_time_hours || "0") * 3600) + (parseInt(finalAnswers.talk_time_minutes || "0") * 60),
+          submittedAt: new Date().toISOString(),
+        }),
       });
     } catch { }
     setSubmitted(true);
