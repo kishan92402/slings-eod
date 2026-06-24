@@ -304,6 +304,11 @@ export default function Dashboard() {
                 </div>
               </div>
             )}
+            {/* Closer / Setter toggle */}
+            <div className="flex items-center bg-zinc-800 rounded-lg p-1 ml-2">
+              <span className="px-3 py-1 rounded-md text-xs font-medium bg-zinc-700 text-white">Closers</span>
+              <Link href="/setter-dashboard" className="px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors">Setters</Link>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
