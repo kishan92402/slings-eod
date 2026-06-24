@@ -14,6 +14,7 @@ export async function POST(request: Request) {
         .from("slack_webhooks")
         .select("webhook_url")
         .eq("team", body.team)
+        .eq("role", "setter")
         .single();
 
       if (webhookData?.webhook_url) {
