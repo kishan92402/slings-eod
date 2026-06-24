@@ -14,7 +14,7 @@ interface Field {
   prefix?: string;
 }
 
-const TEAM_ROSTER: Record<string, string[]> = {
+const DEFAULT_ROSTER: Record<string, string[]> = {
   "Brandify": ["Noah", "Trevor"],
   "Swingtradinglab": ["Ryan Sierra", "Ben Fejzic", "Jakob Siddiqui", "Mason Sprague"],
   "Home Service Experts": ["Adam", "Chandler", "Jonathan", "William Jawhary"],
@@ -127,15 +127,26 @@ const FIELDS: Field[] = [
 ];
 
 export default function EODForm() {
-  // Pre-fill team from portal session and skip the team question
   const storedTeam = typeof window !== "undefined" ? localStorage.getItem("slings_team") || "" : "";
   const theme = getTheme(storedTeam) ?? DEFAULT_THEME;
   const ACTIVE_FIELDS = storedTeam ? FIELDS.filter(f => f.id !== "team") : FIELDS;
 
+  const [teamRoster, setTeamRoster] = useState<Record<string, string[]>>(DEFAULT_ROSTER);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>(
     storedTeam ? { team: storedTeam } : {}
   );
+
+  useEffect(() => {
+    fetch("/api/roster").then(r => r.json()).then((data: { team: string; name: string }[]) => {
+      const map: Record<string, string[]> = {};
+      data.forEach(({ team, name }) => {
+        if (!map[team]) map[team] = [];
+        map[team].push(name);
+      });
+      setTeamRoster(map);
+    }).catch(() => {});
+  }, []);
   const [currentValue, setCurrentValue] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -143,7 +154,7 @@ export default function EODForm() {
 
   const rawField = ACTIVE_FIELDS[step];
   const field = rawField.id === "name"
-    ? { ...rawField, options: TEAM_ROSTER[answers.team] ?? [], type: (TEAM_ROSTER[answers.team]?.length ? "select" : "text") as FieldType }
+    ? { ...rawField, options: teamRoster[answers.team] ?? [], type: (teamRoster[answers.team]?.length ? "select" : "text") as FieldType }
     : rawField;
   const progress = ((step) / ACTIVE_FIELDS.length) * 100;
   const isLast = step === ACTIVE_FIELDS.length - 1;
