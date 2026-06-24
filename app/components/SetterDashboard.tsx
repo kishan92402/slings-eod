@@ -101,6 +101,7 @@ export default function SetterDashboard() {
     setRole(storedRole);
     setMyTeam(storedTeam);
     if (storedRole === "team") { setTeam(storedTeam); setTheme(getTheme(storedTeam)); }
+    else { const savedTeam = sessionStorage.getItem("selected_team"); if (savedTeam) { setTeam(savedTeam); setTheme(getTheme(savedTeam)); sessionStorage.removeItem("selected_team"); } }
     fetch("/api/setter/responses").then(r => r.json()).then(d => { setSubmissions(d); setLoading(false); });
   }, [router]);
 
@@ -189,7 +190,7 @@ export default function SetterDashboard() {
             )}
             {/* Toggle between closer/setter dashboard */}
             <div className="flex items-center bg-zinc-800 rounded-lg p-1 ml-2">
-              <Link href="/dashboard" className="px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors">Closers</Link>
+              <Link href="/dashboard" onClick={() => sessionStorage.setItem("selected_team", team)} className="px-3 py-1 rounded-md text-xs font-medium text-zinc-400 hover:text-white transition-colors">Closers</Link>
               <span className="px-3 py-1 rounded-md text-xs font-medium bg-zinc-700 text-white">Setters</span>
             </div>
           </div>
