@@ -5,7 +5,8 @@ export async function GET() {
     const { data, error } = await supabase
       .from("responses")
       .select("*")
-      .order("submittedAt", { ascending: true });
+      .order("submittedAt", { ascending: true })
+      .limit(10000);
 
     if (error) throw error;
 
