@@ -58,6 +58,12 @@ function n(v: string | undefined) { return parseFloat(v || "0") || 0; }
 function pct(a: number, b: number) { return b ? (a / b) * 100 : null; }
 function fmt(v: number | null) { return v === null ? "–" : v.toFixed(1) + "%"; }
 function fmtMoney(v: number) { return "$" + v.toLocaleString("en-US", { maximumFractionDigits: 0 }); }
+function fmtTime(seconds: number) {
+  if (!seconds) return "–";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
 function pctColor(v: number | null, low = 20, mid = 40) {
   if (v === null) return "text-zinc-600";
   if (v >= mid) return "text-emerald-400";
@@ -289,7 +295,7 @@ export default function SetterDashboard() {
                           <td className={TD}>{totals.offersLT}</td>
                           <td className={TD}>{totals.ltClosed}</td>
                           <td className={TD}>{totals.htClosed}</td>
-                          <td className={TD}>{totals.talkTime}</td>
+                          <td className={TD}>{fmtTime(totals.talkTime)}</td>
                           <td className={TD}>{fmtMoney(totals.cashHT)}</td>
                           <td className={TD}>{fmtMoney(totals.revenueHT)}</td>
                           <td className={TD}>{fmtMoney(totals.cashLT)}</td>
@@ -325,7 +331,7 @@ export default function SetterDashboard() {
                             <td className={TD}>{n(s.offers_given_lt)}</td>
                             <td className={TD}>{n(s.lt_deals_closed)}</td>
                             <td className={TD}>{n(s.ht_deals_closed)}</td>
-                            <td className={TD}>{n(s.talk_time)}</td>
+                            <td className={TD}>{fmtTime(n(s.talk_time))}</td>
                             <td className={TD}>{fmtMoney(n(s.cash_ht))}</td>
                             <td className={TD}>{fmtMoney(n(s.revenue_ht))}</td>
                             <td className={TD}>{fmtMoney(n(s.cash_lt))}</td>
