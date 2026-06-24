@@ -137,7 +137,7 @@ export default function EODForm() {
   );
 
   useEffect(() => {
-    fetch("/api/roster").then(r => r.json()).then((data: { team: string; name: string }[]) => {
+    fetch("/api/roster?role=closer").then(r => r.json()).then((data: { team: string; name: string }[]) => {
       const map: Record<string, string[]> = {};
       data.forEach(({ team, name }) => {
         if (!map[team]) map[team] = [];

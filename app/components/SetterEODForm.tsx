@@ -60,7 +60,7 @@ export default function SetterEODForm() {
 
   useEffect(() => {
     if (storedTeam) {
-      fetch("/api/roster").then(r => r.json()).then((data: { team: string; name: string }[]) => {
+      fetch("/api/roster?role=setter").then(r => r.json()).then((data: { team: string; name: string }[]) => {
         setRoster(data.filter(r => r.team === storedTeam).map(r => r.name));
       });
     }
