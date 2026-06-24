@@ -99,10 +99,9 @@ const FIELDS: Field[] = [
   },
   {
     id: "deposits_taken",
-    question: "How much in deposits did you take?",
-    type: "currency",
+    question: "How many deposits did you take?",
+    type: "number",
     placeholder: "0",
-    prefix: "$",
   },
   {
     id: "deals_closed",
