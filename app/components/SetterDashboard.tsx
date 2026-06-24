@@ -151,7 +151,7 @@ export default function SetterDashboard() {
     options: string[]; value: string; onSelect: (v: string) => void; color?: string;
   }) => (
     <div className="relative" onClick={e => e.stopPropagation()}>
-      <button onClick={() => { setOpen(!open); setTeamOpen(false); setRepOpen(false); setRangeOpen(false); }}
+      <button onClick={() => { const next = !open; setTeamOpen(false); setRepOpen(false); setRangeOpen(false); setOpen(next); }}
         className="flex items-center gap-2 px-3.5 py-2 bg-zinc-900 border border-zinc-700 hover:border-zinc-600 rounded-lg text-sm text-zinc-300 hover:text-white transition-all min-w-[130px] justify-between">
         {color && <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />}
         <span className="truncate max-w-[120px]">{value}</span>
