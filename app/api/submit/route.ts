@@ -17,29 +17,51 @@ export async function POST(request: Request) {
         .single();
 
       if (webhookData?.webhook_url) {
-        const cash = Number(body.cash_collected || 0);
-        const revenue = Number(body.revenue_generated || 0);
-        const closed = Number(body.deals_closed || 0);
-        const shown = Number(body.calls_shown || 0);
+        const booked   = Number(body.calls_booked || 0);
+        const shown    = Number(body.calls_shown || 0);
+        const cancelled = Number(body.calls_cancelled || 0);
+        const noShows  = Math.max(0, booked - shown - cancelled);
+        const slots    = Number(body.slots_open || 0);
+        const offers   = Number(body.offers_given || 0);
+        const deposits = Number(body.deposits_taken || 0);
+        const rescMade = Number(body.reschedules_made || 0);
+        const rescShown = Number(body.reschedules_shown || 0);
+        const fuSched  = Number(body.followup_scheduled || 0);
+        const fuShown  = Number(body.followup_shown || 0);
+        const closed   = Number(body.deals_closed || 0);
+        const cash     = Number(body.cash_collected || 0);
+        const revenue  = Number(body.revenue_generated || 0);
+
+        const dateStr = body.date
+          ? new Date(body.date + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          : new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+        const lines = [
+          `*New Closer EOD!*`,
+          `*Date:* ${dateStr}`,
+          `*Sales Rep:* ${body.name}`,
+          `*New Calls Booked:* ${booked}`,
+          `*New Calls Shown:* ${shown}`,
+          `*No Shows:* ${noShows}`,
+          `*Canceled:* ${cancelled}`,
+          `*Available Slots:* ${slots}`,
+          `*Offers Given:* ${offers}`,
+          `*Deposits Taken:* ${deposits}`,
+          `*Rescheduled:* ${rescMade}`,
+          `*Rescheduled Showed:* ${rescShown}`,
+          `*Follow Up Calls Booked:* ${fuSched}`,
+          `*Follow Up Calls Shown:* ${fuShown}`,
+          `*Deals Closed:* ${closed}`,
+          `*Cash Collected:* $${cash.toLocaleString()}`,
+          `*Revenue:* $${revenue.toLocaleString()}`,
+        ].join("\n");
 
         const msg = {
-          text: `✅ *${body.name}* just submitted their EOD for *${body.team}*`,
+          text: `New Closer EOD — ${body.name} (${body.team})`,
           blocks: [
             {
               type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `✅ *${body.name}* just submitted their EOD for *${body.team}* — ${body.date || new Date().toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}`,
-              },
-            },
-            {
-              type: "section",
-              fields: [
-                { type: "mrkdwn", text: `*Calls Shown*\n${shown}` },
-                { type: "mrkdwn", text: `*Deals Closed*\n${closed}` },
-                { type: "mrkdwn", text: `*Cash Collected*\n$${cash.toLocaleString()}` },
-                { type: "mrkdwn", text: `*Revenue Generated*\n$${revenue.toLocaleString()}` },
-              ],
+              text: { type: "mrkdwn", text: lines },
             },
           ],
         };
