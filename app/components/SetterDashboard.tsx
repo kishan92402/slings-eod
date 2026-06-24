@@ -301,7 +301,7 @@ export default function SetterDashboard() {
                         </tr>
                       )}
                       {/* Data rows */}
-                      {filtered.map((s, i) => {
+                      {[...filtered].sort((a, b) => (b.date || b.submittedAt || "").localeCompare(a.date || a.submittedAt || "")).map((s, i) => {
                         const dials = n(s.dials), connects = n(s.connections);
                         const apptSet = n(s.appointments_set), setsShowed = n(s.sets_showed);
                         const triaged = n(s.confirmed_triaged), triagedShowed = n(s.triaged_showed);
