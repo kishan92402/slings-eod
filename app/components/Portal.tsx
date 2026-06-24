@@ -207,9 +207,8 @@ export default function Portal() {
               <button
                 type="submit"
                 disabled={!password}
-                className="w-full py-3 rounded-xl text-sm font-semibold transition-all"
-                style={password ? { backgroundColor: theme.primary, color: theme.textOnPrimary } : undefined}
-                {...(!password ? { className: "w-full py-3 rounded-xl text-sm font-semibold bg-zinc-800 text-zinc-600 cursor-not-allowed" } : {})}
+                className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${!password ? "bg-zinc-800 text-zinc-600 cursor-not-allowed" : ""}`}
+                style={password ? { backgroundColor: theme.primary, color: theme.textOnPrimary } : {}}
               >
                 Continue
               </button>

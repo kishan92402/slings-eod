@@ -1,13 +1,14 @@
 import { supabase } from "../../../lib/supabase";
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     const { error } = await supabase
       .from("responses")
       .update(body)
-      .eq("id", params.id);
+      .eq("id", id);
 
     if (error) throw error;
 
