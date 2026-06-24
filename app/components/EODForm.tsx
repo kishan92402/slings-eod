@@ -16,8 +16,8 @@ interface Field {
 
 const TEAM_ROSTER: Record<string, string[]> = {
   "Brandify": ["Noah", "Trevor"],
-  "Swingtradinglab": ["Ryan", "Ben", "Jake", "Mason"],
-  "Home Service Experts": ["Adam", "Chandler", "Jonathan", "William"],
+  "Swingtradinglab": ["Ryan Sierra", "Ben Fejzic", "Jakob Siddiqui", "Mason Sprague"],
+  "Home Service Experts": ["Adam", "Chandler", "Jonathan", "William Jawhary"],
   "Collective Shift": ["Reece", "Josh", "Paul"],
   "Deal Flip Formula": ["Ben", "Darwin"],
   "Vibecoding Accelerator": [],

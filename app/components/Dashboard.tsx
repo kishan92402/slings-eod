@@ -26,7 +26,7 @@ interface Submission {
   submittedAt: string;
 }
 
-const TEAMS = ["All Teams", "Brandify", "Swingtradinglab", "Home Service Experts", "Collective Shift", "Deal Flip Formula", "Vibecoding Accelerator"];
+const TEAMS = ["All Teams", "Brandify", "Swingtradinglab", "Home Service Experts", "Collective Shift", "Deal Flip Formula", "Vibecoding Accelerator", "RB Launch"];
 
 type DateRange = "this_week" | "this_month" | "last_7" | "last_30" | "this_year" | "all_time";
 const DATE_RANGES: { value: DateRange; label: string }[] = [
