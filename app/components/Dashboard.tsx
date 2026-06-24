@@ -224,7 +224,8 @@ export default function Dashboard() {
   const filtered = useMemo(() => {
     const { start, end } = getDateBounds(range);
     return submissions.filter(s => {
-      const d = new Date(s.submittedAt);
+      const dateStr = s.date || s.submittedAt?.slice(0, 10);
+      const d = new Date(dateStr + "T12:00:00");
       return (team === "All Teams" || s.team === team) &&
              (rep === "All Reps" || s.name === rep) &&
              d >= start && d <= end;
