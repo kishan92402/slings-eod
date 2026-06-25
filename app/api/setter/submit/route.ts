@@ -3,7 +3,9 @@ import { supabase } from "../../../lib/supabase";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const record = { ...body, id: Date.now().toString() };
+    // Strip form-only fields that aren't DB columns
+    const { talk_time_hours, talk_time_minutes, ...rest } = body;
+    const record = { ...rest, id: Date.now().toString() };
 
     const { error } = await supabase.from("setter_responses").insert([record]);
     if (error) throw error;
