@@ -99,6 +99,9 @@ export default function SetterDashboard() {
   const [role, setRole] = useState<"admin" | "team" | null>(null);
   const [myTeam, setMyTeam] = useState("");
   const [theme, setTheme] = useState<TeamTheme>(DEFAULT_THEME);
+  const [editing, setEditing] = useState<SetterSubmission | null>(null);
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const storedRole = localStorage.getItem("slings_role") as "admin" | "team" | null;
@@ -152,6 +155,32 @@ export default function SetterDashboard() {
   }, [filtered]);
 
   const rangeLabel = DATE_RANGES.find(d => d.value === range)?.label ?? "";
+
+  function openEdit(s: SetterSubmission) {
+    setEditing(s);
+    setEditValues({
+      dials: s.dials, connections: s.connections, conversations: s.conversations,
+      quality_conversations: s.quality_conversations, appointments_set: s.appointments_set,
+      sets_showed: s.sets_showed, confirmed_triaged: s.confirmed_triaged,
+      triaged_showed: s.triaged_showed, offers_given_lt: s.offers_given_lt,
+      lt_deals_closed: s.lt_deals_closed, ht_deals_closed: s.ht_deals_closed,
+      talk_time: s.talk_time, cash_ht: s.cash_ht, revenue_ht: s.revenue_ht,
+      cash_lt: s.cash_lt, revenue_lt: s.revenue_lt,
+    });
+  }
+
+  async function saveEdit() {
+    if (!editing) return;
+    setSaving(true);
+    await fetch(`/api/setter/responses/${editing.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editValues),
+    });
+    setSubmissions(prev => prev.map(s => s.id === editing.id ? { ...s, ...editValues } : s));
+    setSaving(false);
+    setEditing(null);
+  }
 
   const Dropdown = ({ open, setOpen, label, options, value, onSelect, color }: {
     open: boolean; setOpen: (v: boolean) => void; label: string;
@@ -277,6 +306,7 @@ export default function SetterDashboard() {
                         <th className={TH}>Triage %</th>
                         <th className={TH}>HT Close %</th>
                         <th className={TH}>LT Close %</th>
+                        <th className="px-4 py-3"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -341,6 +371,11 @@ export default function SetterDashboard() {
                             <td className={`${TD} ${pctColor(pct(triagedShowed, triaged))}`}>{fmt(pct(triagedShowed, triaged))}</td>
                             <td className={`${TD} ${pctColor(pct(htClosed, apptSet))}`}>{fmt(pct(htClosed, apptSet))}</td>
                             <td className={`${TD} ${pctColor(pct(ltClosed, offersLT))}`}>{fmt(pct(ltClosed, offersLT))}</td>
+                          <td className="px-4 py-3">
+                            <button onClick={() => openEdit(s)} className="text-zinc-600 hover:text-zinc-300 transition-colors">
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                          </td>
                           </tr>
                         );
                       })}
@@ -352,6 +387,53 @@ export default function SetterDashboard() {
           </>
         )}
       </div>
+
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setEditing(null)}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div className="relative bg-zinc-900 border border-zinc-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 sticky top-0 bg-zinc-900 z-10">
+              <div>
+                <h2 className="text-white font-semibold">Edit Setter EOD</h2>
+                <p className="text-zinc-500 text-xs mt-0.5">{editing.name} · {editing.team} · {editing.date}</p>
+              </div>
+              <button onClick={() => setEditing(null)} className="text-zinc-500 hover:text-white transition-colors">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="px-6 py-5 grid grid-cols-2 gap-4">
+              {([
+                { key: "dials", label: "Dials" }, { key: "connections", label: "Connections" },
+                { key: "conversations", label: "Conversations" }, { key: "quality_conversations", label: "Quality Conversations" },
+                { key: "appointments_set", label: "Appointments Set" }, { key: "sets_showed", label: "Sets Showed" },
+                { key: "confirmed_triaged", label: "Confirmed Triaged" }, { key: "triaged_showed", label: "Triaged Showed" },
+                { key: "offers_given_lt", label: "Offers Given (LT)" }, { key: "lt_deals_closed", label: "LT Deals Closed" },
+                { key: "ht_deals_closed", label: "HT Deals Closed" }, { key: "talk_time", label: "Talk Time (seconds)" },
+                { key: "cash_ht", label: "Cash HT", prefix: "$" }, { key: "revenue_ht", label: "Revenue HT", prefix: "$" },
+                { key: "cash_lt", label: "Cash LT", prefix: "$" }, { key: "revenue_lt", label: "Revenue LT", prefix: "$" },
+              ] as { key: string; label: string; prefix?: string }[]).map(({ key, label, prefix }) => (
+                <div key={key}>
+                  <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider block mb-1.5">{label}</label>
+                  <div className="relative">
+                    {prefix && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 text-sm pointer-events-none">{prefix}</span>}
+                    <input type="number" min="0" value={editValues[key] ?? ""}
+                      onChange={e => setEditValues(v => ({ ...v, [key]: e.target.value }))}
+                      className={`w-full bg-zinc-800 border border-zinc-700 rounded-lg py-2.5 text-white text-sm outline-none focus:border-zinc-500 transition-colors ${prefix ? "pl-7 pr-3" : "px-3"}`} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="px-6 py-4 border-t border-zinc-800 flex gap-3 justify-end sticky bottom-0 bg-zinc-900">
+              <button onClick={() => setEditing(null)} className="px-4 py-2 text-sm text-zinc-400 hover:text-white transition-colors">Cancel</button>
+              <button onClick={saveEdit} disabled={saving}
+                className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+                style={{ backgroundColor: theme.primary, color: theme.textOnPrimary }}>
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
